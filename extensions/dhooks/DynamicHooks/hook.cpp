@@ -202,6 +202,8 @@ ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 
 void* __cdecl CHook::GetReturnAddress(void* pESP)
 {
+	smutils->LogMessage(myself, "GetReturnAddress : pESP = 0x%X", pESP);
+
 	ReturnAddressMap::Result r = m_RetAddr.find(pESP);
 	assert(r.found());
 	if (!r.found())
@@ -222,6 +224,8 @@ void* __cdecl CHook::GetReturnAddress(void* pESP)
 
 void __cdecl CHook::SetReturnAddress(void* pRetAddr, void* pESP)
 {
+	smutils->LogMessage(myself, "SetReturnAddress : pRetAddr = 0x%X, pESP = 0x%X", pRetAddr, pESP);
+
 	ReturnAddressMap::Insert i = m_RetAddr.findForAdd(pESP);
 	if (!i.found())
 		m_RetAddr.add(i, pESP, std::vector<void *>());
