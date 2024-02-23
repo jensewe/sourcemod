@@ -156,11 +156,31 @@ bool CHook::AreCallbacksRegistered()
 
 ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 {
+	std::vector<Register_t> vecRegisterTypes = m_pCallingConvention->GetRegisters();
+	std::vector<CRegister*> vecRegisters(vecRegisterTypes.size());
+
+	int size = 0;
+	for(size_t i = 0; i < vecRegisterTypes.size(); i++)
+	{
+		CRegister* pRegister = m_pRegisters->GetRegister(vecRegisterTypes[i]);
+		size += pRegister->m_iSize;
+		vecRegisters[i] = pRegister;
+	}
+
+	std::unique_ptr<uint8_t[]> pSavedRegisters = std::make_unique<uint8_t[]>(size);	
+	size_t offset = 0;
+	for(size_t i = 0; i < vecRegisters.size(); i++)
+	{
+		CRegister* pRegister = vecRegisters[i];
+		memcpy((void *)((unsigned long)pSavedRegisters.get() + offset), pRegister->m_pAddress, pRegister->m_iSize);
+		offset += pRegister->m_iSize;
+	}
+
 	if (eHookType == HOOKTYPE_POST)
 	{
 		ReturnAction_t lastPreReturnAction = m_LastPreReturnAction.back();
 		m_LastPreReturnAction.pop_back();
-		if (lastPreReturnAction == ReturnAction_Override)
+		if (lastPreReturnAction >= ReturnAction_Override)
 			m_pCallingConvention->RestoreReturnValue(m_pRegisters);
 		if (lastPreReturnAction < ReturnAction_Supercede)
 			m_pCallingConvention->RestoreCallArguments(m_pRegisters);
@@ -191,10 +211,18 @@ ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 	if (eHookType == HOOKTYPE_PRE)
 	{
 		m_LastPreReturnAction.push_back(returnAction);
-		if (returnAction == ReturnAction_Override)
+		if (returnAction >= ReturnAction_Override)
 			m_pCallingConvention->SaveReturnValue(m_pRegisters);
 		if (returnAction < ReturnAction_Supercede)
 			m_pCallingConvention->SaveCallArguments(m_pRegisters);
+	}
+
+	offset = 0;
+	for(size_t i = 0; i < vecRegisters.size(); i++)
+	{
+		CRegister* pRegister = vecRegisters[i];
+		memcpy(pRegister->m_pAddress, (void *)((unsigned long)pSavedRegisters.get() + offset), pRegister->m_iSize);
+		offset += pRegister->m_iSize;
 	}
 
 	return returnAction;
