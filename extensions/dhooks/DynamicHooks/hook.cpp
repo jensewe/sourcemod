@@ -164,7 +164,7 @@ ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 	{
 		CRegister* pRegister = m_pRegisters->GetRegister(vecRegisterTypes[i]);
 		size += pRegister->m_iSize;
-		vecRegisters.push_back(pRegister);
+		vecRegisters[i] = pRegister;
 	}
 
 	std::unique_ptr<uint8_t[]> pSavedRegisters = std::make_unique<uint8_t[]>(size);	
