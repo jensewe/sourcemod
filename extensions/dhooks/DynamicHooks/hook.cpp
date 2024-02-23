@@ -162,7 +162,7 @@ ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 	int size = 0;
 	for(size_t i = 0; i < vecRegisterTypes.size(); i++)
 	{
-		CRegister* pRegister = m_pRegisters->GetRegister(vecRegisters[i]);
+		CRegister* pRegister = m_pRegisters->GetRegister(vecRegisterTypes[i]);
 		size += pRegister->m_iSize;
 		vecRegisters.push_back(pRegister);
 	}
