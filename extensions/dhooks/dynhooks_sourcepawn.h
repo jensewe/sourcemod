@@ -55,7 +55,7 @@ public:
 
 	HookReturnStruct *GetReturnStruct();
 	HookParamsStruct *GetParamStruct();
-	void UpdateParamsFromStruct(HookParamsStruct *params);
+	void UpdateParamsFromStruct(HookParamsStruct *params, std::vector<CRegister*> &vecChangedRegisters);
 
 public:
 	CHook *m_pDetour;
