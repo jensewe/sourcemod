@@ -67,7 +67,7 @@ enum ReturnAction_t
 // >> TYPEDEFS
 // ============================================================================
 class CHook;
-typedef ReturnAction_t (*HookHandlerFn)(HookType_t, CHook*);
+typedef ReturnAction_t (*HookHandlerFn)(HookType_t, CHook*, std::vector<CRegister*>&);
 
 #ifdef __linux__
 #define __cdecl
