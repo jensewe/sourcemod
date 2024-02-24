@@ -432,7 +432,7 @@ ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour, std::vector<CRe
 
 			// Copy the changed parameter values from the plugin's parameter structure back into the actual detour arguments.
 			if (result == MRES_ChangedOverride)
-				pWrapper->UpdateParamsFromStruct(paramStruct);
+				pWrapper->UpdateParamsFromStruct(paramStruct, vecChangedRegisters);
 			break;
 		default:
 			tempRet = ReturnAction_Ignored;
