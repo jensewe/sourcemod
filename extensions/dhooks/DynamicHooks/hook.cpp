@@ -40,6 +40,7 @@
 #include "extension.h"
 #include <jit/jit_helpers.h>
 #include <CDetour/detourhelpers.h>
+#include <algorithm>
 
 using namespace sp;
 
@@ -157,6 +158,7 @@ bool CHook::AreCallbacksRegistered()
 ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 {
 	std::vector<Register_t> vecRegisterTypes = m_pCallingConvention->GetRegisters();
+	std::vector<CRegister*> vecChangedRegisters;
 	std::vector<CRegister*> vecRegisters(vecRegisterTypes.size());
 
 	int size = 0;
@@ -203,7 +205,7 @@ ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 	HookHandlerSet &callbacks = r->value;
 	for(HookHandlerSet::iterator it=callbacks.iter(); !it.empty(); it.next())
 	{
-		ReturnAction_t result = ((HookHandlerFn) *it)(eHookType, this);
+		ReturnAction_t result = ((HookHandlerFn) *it)(eHookType, this, vecChangedRegisters);
 		if (result > returnAction)
 			returnAction = result;
 	}
@@ -221,7 +223,10 @@ ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 	for(size_t i = 0; i < vecRegisters.size(); i++)
 	{
 		CRegister* pRegister = vecRegisters[i];
-		memcpy(pRegister->m_pAddress, (void *)((unsigned long)pSavedRegisters.get() + offset), pRegister->m_iSize);
+		if ( std::none_of(vecChangedRegisters.begin(), vecChangedRegisters.end(), [pRegister](const CRegister* p){return p == pRegister;}) )
+		{
+			memcpy(pRegister->m_pAddress, (void *)((unsigned long)pSavedRegisters.get() + offset), pRegister->m_iSize);
+		}
 		offset += pRegister->m_iSize;
 	}
 
@@ -230,8 +235,6 @@ ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 
 void* __cdecl CHook::GetReturnAddress(void* pESP)
 {
-	smutils->LogMessage(myself, "GetReturnAddress : pESP = 0x%X", pESP);
-
 	ReturnAddressMap::Result r = m_RetAddr.find(pESP);
 	assert(r.found());
 	if (!r.found())
@@ -252,8 +255,6 @@ void* __cdecl CHook::GetReturnAddress(void* pESP)
 
 void __cdecl CHook::SetReturnAddress(void* pRetAddr, void* pESP)
 {
-	smutils->LogMessage(myself, "SetReturnAddress : pRetAddr = 0x%X, pESP = 0x%X", pRetAddr, pESP);
-
 	ReturnAddressMap::Insert i = m_RetAddr.findForAdd(pESP);
 	if (!i.found())
 		m_RetAddr.add(i, pESP, std::vector<void *>());
