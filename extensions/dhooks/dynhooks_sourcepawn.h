@@ -55,7 +55,7 @@ public:
 
 	HookReturnStruct *GetReturnStruct();
 	HookParamsStruct *GetParamStruct();
-	void UpdateParamsFromStruct(HookParamsStruct *params);
+	void UpdateParamsFromStruct(HookParamsStruct *params, std::vector<void*> &vecChangedRegisters);
 
 public:
 	CHook *m_pDetour;
@@ -64,7 +64,7 @@ public:
 
 ICallingConvention *ConstructCallingConvention(HookSetup *setup);
 bool UpdateRegisterArgumentSizes(CHook* pDetour, HookSetup *setup);
-ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour);
+ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour, std::vector<void*> &vecChangedRegisters);
 bool AddDetourPluginHook(HookType_t hookType, CHook *pDetour, HookSetup *setup, IPluginFunction *pCallback);
 bool RemoveDetourPluginHook(HookType_t hookType, CHook *pDetour, IPluginFunction *pCallback);
 void RemoveAllCallbacksForContext(IPluginContext *pContext);
