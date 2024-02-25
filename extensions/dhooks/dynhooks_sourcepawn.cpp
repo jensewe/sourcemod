@@ -279,7 +279,7 @@ bool UpdateRegisterArgumentSizes(CHook* pDetour, HookSetup *setup)
 }
 
 // Central handler for all detours. Heart of the detour support.
-ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour)
+ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour, std::vector<void*> &vecChangedRegisters)
 {
 	// Can't call into SourcePawn offthread.
 	if (g_MainThreadId != std::this_thread::get_id())
@@ -392,7 +392,7 @@ ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour)
 		case MRES_ChangedHandled:
 			tempRet = ReturnAction_Handled;
 			// Copy the changed parameter values from the plugin's parameter structure back into the actual detour arguments.
-			pWrapper->UpdateParamsFromStruct(paramStruct);
+			pWrapper->UpdateParamsFromStruct(paramStruct, vecChangedRegisters);
 			break;
 		case MRES_ChangedOverride:
 		case MRES_Override:
@@ -432,7 +432,7 @@ ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour)
 
 			// Copy the changed parameter values from the plugin's parameter structure back into the actual detour arguments.
 			if (result == MRES_ChangedOverride)
-				pWrapper->UpdateParamsFromStruct(paramStruct);
+				pWrapper->UpdateParamsFromStruct(paramStruct, vecChangedRegisters);
 			break;
 		default:
 			tempRet = ReturnAction_Ignored;
@@ -465,6 +465,7 @@ ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour)
 		void* pPtr = pDetour->m_pCallingConvention->GetReturnPtr(pDetour->m_pRegisters);
 		memcpy(pPtr, finalRetBuf.get(), pDetour->m_pCallingConvention->m_returnType.size);
 		pDetour->m_pCallingConvention->ReturnPtrChanged(pDetour->m_pRegisters, pPtr);
+		vecChangedRegisters.push_back(pPtr);
 	}
 
 	return finalRet;
@@ -621,7 +622,7 @@ HookParamsStruct *CDynamicHooksSourcePawn::GetParamStruct()
 	return params;
 }
 
-void CDynamicHooksSourcePawn::UpdateParamsFromStruct(HookParamsStruct *params)
+void CDynamicHooksSourcePawn::UpdateParamsFromStruct(HookParamsStruct *params, std::vector<void*> &vecChangedRegisters)
 {
 	// Function had no params to update now.
 	if (!params)
@@ -653,6 +654,8 @@ void CDynamicHooksSourcePawn::UpdateParamsFromStruct(HookParamsStruct *params)
 			void *paramAddr = (void *)((intptr_t)params->newParams + offset);
 			void *stackAddr = callingConvention->GetArgumentPtr(i + firstArg, m_pDetour->m_pRegisters);
 			memcpy(stackAddr, paramAddr, size);
+
+			vecChangedRegisters.push_back(stackAddr);
 		}
 
 		// Keep track of the seperate stack and register arguments.
