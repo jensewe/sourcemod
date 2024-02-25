@@ -465,7 +465,7 @@ ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour, std::vector<CRe
 		void* pPtr = pDetour->m_pCallingConvention->GetReturnPtr(pDetour->m_pRegisters);
 		memcpy(pPtr, finalRetBuf.get(), pDetour->m_pCallingConvention->m_returnType.size);
 		pDetour->m_pCallingConvention->ReturnPtrChanged(pDetour->m_pRegisters, pPtr);
-		vecChangedRegisters.push_back((CRegister*)pPtr);
+		vecChangedRegisters.push_back(pPtr);
 	}
 
 	return finalRet;
@@ -655,7 +655,7 @@ void CDynamicHooksSourcePawn::UpdateParamsFromStruct(HookParamsStruct *params, s
 			void *stackAddr = callingConvention->GetArgumentPtr(i + firstArg, m_pDetour->m_pRegisters);
 			memcpy(stackAddr, paramAddr, size);
 
-			vecChangedRegisters.push_back((CRegister*)stackAddr);
+			vecChangedRegisters.push_back(stackAddr);
 		}
 
 		// Keep track of the seperate stack and register arguments.

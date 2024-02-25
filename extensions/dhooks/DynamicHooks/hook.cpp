@@ -158,7 +158,7 @@ bool CHook::AreCallbacksRegistered()
 ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 {
 	std::vector<Register_t> vecRegisterTypes = m_pCallingConvention->GetRegisters();
-	std::vector<CRegister*> vecChangedRegisters;
+	std::vector<void*> vecChangedRegisters;
 	std::vector<CRegister*> vecRegisters(vecRegisterTypes.size());
 
 	int size = 0;
@@ -223,7 +223,7 @@ ReturnAction_t CHook::HookHandler(HookType_t eHookType)
 	for(size_t i = 0; i < vecRegisters.size(); i++)
 	{
 		CRegister* pRegister = vecRegisters[i];
-		if ( std::none_of(vecChangedRegisters.begin(), vecChangedRegisters.end(), [pRegister](const CRegister* p){return p == pRegister;}) )
+		if ( std::none_of(vecChangedRegisters.begin(), vecChangedRegisters.end(), [pRegister](const void* p){return p == pRegister->m_pAddress;}) )
 		{
 			memcpy(pRegister->m_pAddress, (void *)((unsigned long)pSavedRegisters.get() + offset), pRegister->m_iSize);
 		}
