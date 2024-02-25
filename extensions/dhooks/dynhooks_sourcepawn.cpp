@@ -279,7 +279,7 @@ bool UpdateRegisterArgumentSizes(CHook* pDetour, HookSetup *setup)
 }
 
 // Central handler for all detours. Heart of the detour support.
-ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour, std::vector<CRegister*> &vecChangedRegisters)
+ReturnAction_t HandleDetour(HookType_t hookType, CHook* pDetour, std::vector<void*> &vecChangedRegisters)
 {
 	// Can't call into SourcePawn offthread.
 	if (g_MainThreadId != std::this_thread::get_id())
@@ -622,7 +622,7 @@ HookParamsStruct *CDynamicHooksSourcePawn::GetParamStruct()
 	return params;
 }
 
-void CDynamicHooksSourcePawn::UpdateParamsFromStruct(HookParamsStruct *params, std::vector<CRegister*> &vecChangedRegisters)
+void CDynamicHooksSourcePawn::UpdateParamsFromStruct(HookParamsStruct *params, std::vector<void*> &vecChangedRegisters)
 {
 	// Function had no params to update now.
 	if (!params)
