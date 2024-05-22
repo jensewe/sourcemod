@@ -13,7 +13,7 @@ jobs:
   test:
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-latest, windows-latest]
+        os: [ubuntu-18.04, ubuntu-latest, windows-latest]
         include:
           - os: windows-latest
             os_short: win
@@ -22,8 +22,8 @@ jobs:
             os_short: linux
             compiler_cc: clang
             compiler_cxx: clang++
-          - os: ubuntu-20.04
-            os_short: oldlinux
+          - os: ubuntu-18.04
+            os_short: linux
             compiler_cc: clang-8
             compiler_cxx: clang++-8
       fail-fast: false
