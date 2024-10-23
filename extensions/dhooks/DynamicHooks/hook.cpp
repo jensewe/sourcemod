@@ -621,8 +621,7 @@ void CHook::CreateBridge()
 	masm.j(equal, &label_supercede);
 
 	// Jump to the trampoline
-	masm.movl(eax, Operand(ExternalAddress(&m_pTrampoline)));
-	masm.jmp(eax);
+	masm.jmp(ExternalAddress(m_pTrampoline));
 
 	// This code will be executed if a pre-hook returns ReturnAction_Supercede
 	masm.bind(&label_supercede);
