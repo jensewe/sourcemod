@@ -38,7 +38,7 @@
 #include <am-utility.h>
 #include <am-hashset.h>
 #include <am-hashmap.h>
-#include <sm_stringhashmap.h>
+#include <sm_hashmap.h>
 #include <sm_namehashset.h>
 #include "sm_globals.h"
 #include "sm_queue.h"
@@ -56,6 +56,8 @@ class ICommandArgs;
 
 using namespace SourceHook;
 using namespace SourceMod;
+
+static const int ENTREF_MASK = (1 << 31);
 
 #define HUD_PRINTTALK		3
 #define HUD_PRINTCENTER		4
